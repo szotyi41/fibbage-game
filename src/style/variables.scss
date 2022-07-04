@@ -1,0 +1,46 @@
+$font-color: #f2f0c9;
+$color-green-dark: #787548;
+$color-green-light: #aea875;
+$color-blue-light: #618aa9;
+$color-red-dark: #784848;
+$color-red-light: #ae7575;
+$color-prm: rgb(232, 169, 32);
+
+$blue: #7ba9cd;
+$green: #709e72;
+$yellow: #dad583;
+$red: #a45d61;
+
+$empty-user-color: #999;
+
+$transition-bounce: all 0.3s cubic-bezier(0.47,1.64,0.41,0.8);
+
+$font-family: 'Montserrat', sans-serif;
+
+html, body {
+	font-family: $font-family;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+	color: #fff;
+}
+
+body {
+    position: relative;
+    background-image: url('/assets/background.webp');
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    height: 100%;
+    user-select: none;
+
+	@media screen and (max-width: 1200px) {
+		background-size: auto;
+		background-position: center top;
+		background-repeat: no-repeat;
+	}
+}
