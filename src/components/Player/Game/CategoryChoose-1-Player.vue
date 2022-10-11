@@ -3,9 +3,7 @@
 
 		<!-- Player has already guessed a category -->
 		<div v-if="room.category">
-			<h1>
-				{{ room.playerWhoHaveToGuessCategory?.playerName + ' a(z) ' + room.category + ' kategóriát választotta.' }}
-			</h1>
+			<h1>{{ room.playerWhoHaveToGuessCategory?.playerName + ' a(z) ' + room.category + ' kategóriát választotta.' }}</h1>
 		</div>
 
 		<div v-else>
@@ -18,7 +16,7 @@
 
 			<!-- You must select a category -->
 			<div v-else>
-				<h1>Válassz kategóriát!</h1>
+				<h1 @click="$store.dispatch('game/getRoom', $socket)">Válassz <span class="underline">kategóriát</span>!</h1>
 
 				<div class="category-buttons">
 					<button v-for="(category, categoryIndex) in categories"
@@ -96,3 +94,11 @@ export default {
 	}
 };
 </script>
+
+<style lang="scss" scoped>
+.category-buttons {
+	button {
+		margin-bottom: 8px;
+	}
+}
+</style>

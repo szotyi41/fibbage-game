@@ -36,8 +36,14 @@ export default function SendGuessedAnswerToServer(socket, io, data, callback, gl
     }
 
     // Update player guess at room
-    player = room.setGuessPlayerAnswer(player, answer);
+    player = room.setGuessPlayerAnswer(
+        player, 
+        answer
+    );
+
+    // Update global
     global.Players[socket.id] = player;
+
     console.log(player.playerName, 'guessed', answer);
 
     // Send answers to clients

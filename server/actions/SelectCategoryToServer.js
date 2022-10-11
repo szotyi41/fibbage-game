@@ -32,7 +32,7 @@ export default function SelectCategoryToServer(socket, io, data, callback, globa
 
     // If room doesn't need to guess category
     if (!room.waitingForGuessCategory) {
-        console.log('Room not needed to guess category');
+        console.log('A kategória már kiválasztásra került');
         callback({
             success: false,
             message: 'A kategória már kiválasztásra került'

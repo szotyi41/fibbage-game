@@ -30,6 +30,7 @@ export default function SendPlayerLieToServer(socket, io, data, callback, global
 		return;
 	}
 
+	console.log(player.playerName, 'lied', lie);
 
 	// Set player lie at room
 	room.setPlayerLie(player, lie);
@@ -40,7 +41,7 @@ export default function SendPlayerLieToServer(socket, io, data, callback, global
 
 	callback({
 		success: true,
-		players: roomPlayers,
+		players: roomPlayers.map(player => player.response()),
 		player: player,
 		room: room.response()
 	});
@@ -48,7 +49,7 @@ export default function SendPlayerLieToServer(socket, io, data, callback, global
 	// Send lieed globalPlayers to room / others
 	io.sockets.in(socket.room.id).emit('on_player_sent_lie_to_client', {
 		success: true,
-		players: roomPlayers,
+		players: roomPlayers.map(player => player.response()),
 		player: player,
 		room: room.response()
 	});

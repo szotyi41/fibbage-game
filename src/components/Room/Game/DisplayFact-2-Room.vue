@@ -1,7 +1,12 @@
 <template>
 	<div class="display-fact-component">
 
-		<h1 v-if="fact.fact">{{ fact.fact }}</h1>
+
+		<transition name="show-fact">
+			<h1 class="fact-text" 
+				:class="{'waiting-for-lying': room.waitingForPlayerLying}" 
+				v-if="fact.fact">{{ fact.fact }}</h1>
+		</transition>
 
 
 		<div v-if="!room.showResultsAfterEverybodyGuessed">
@@ -64,3 +69,25 @@ export default {
 	}
 };
 </script>
+
+<style lang="scss" scoped>
+@import '../../../style/variables.scss';
+
+.display-fact-component {
+	overflow: hidden;
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+}
+
+.fact-text {
+	font-size: 48px;
+	transition: $transition-bounce;
+	margin-top: 64px;
+
+	&.waiting-for-lying {
+		font-size: 80px;
+		margin-top: 128px;
+	}
+}
+</style>

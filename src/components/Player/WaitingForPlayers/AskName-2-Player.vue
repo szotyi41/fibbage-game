@@ -17,12 +17,12 @@
 			</button>
 
 			<div v-else class="buttons">
-				<button class="button button-prm" @click="getRandomPlayerName()">
+				<button class="button button-sec" @click="getRandomPlayerName()">
 					Sorsolj egy nevet
 				</button>
 
 				<button class="button button-prm" @click="sendPlayerName(playerName)" :disabled="!playerName.length">
-					Ez a nevem, így hívnak
+					Indulhat
 				</button>
 			</div>
 		</div>

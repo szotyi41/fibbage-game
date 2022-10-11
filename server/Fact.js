@@ -11,7 +11,8 @@ const FactSchema = new Schema({
     info: String,
     category: String,
     recommended: Array,
-    correct: String
+    correct: String,
+    use_times: Number
 });
 
 const Fact = mongoose.model('Facts', FactSchema, 'Facts');

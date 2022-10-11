@@ -1,4 +1,5 @@
 export default function GetGuessablesToServer(socket, io, data, callback, global) {
+
         const room = socket.room;
 
         // Find room of socket
@@ -53,7 +54,7 @@ export default function GetGuessablesToServer(socket, io, data, callback, global
                 .emit('send_timeout_to_guess_answers_to_client', {
                     success: true,
                     room: room.response(),
-                    players: roomPlayers
+                    players: roomPlayers.map(player => player.response())
                 });
         };
 
@@ -66,12 +67,16 @@ export default function GetGuessablesToServer(socket, io, data, callback, global
             room.countdownGuessInterval = null;
         }
 
+
         // Countdown. Every second send time to all users.
         room.countdownGuessTime = room.playersTimeToGuess;
         room.countdownGuessInterval = setInterval(() => {
 
             room.countdownGuessTime -= 1;
-            console.log('Guess time is ', room.countdownGuessTime);
+
+            if (room.countdownGuessTime % 10 === 0) {
+                console.log('Guess time is ', room.countdownGuessTime);
+            }
 
             // On timeout choosing
             if (room.countdownGuessTime <= 0) {

@@ -1,3 +1,5 @@
+import Player from './Player.js';
+
 class Room {
     // Init variables
     constructor(id, roomCode) {
@@ -8,14 +10,23 @@ class Room {
         this.maxPlayers = Number.POSITIVE_INFINITY;
         this.round = 0;
 
+        this.colors = [
+            '#caa169',
+            '#6d9e70',
+            '#a45e5c',
+            '#74c4c3',
+            '#79a8c9',
+            '#d1cd80'
+        ];
+
         // Set timeout's
         this.timeoutGuessCategory = {};
         this.timeoutTypeLie = {};
         this.timeoutGuessAnswer = {};
 
         // Rules
-        this.playersTimeToLie = 120; //20;
-        this.playersTimeToGuess = 120; //20;
+        this.playersTimeToLie = 30; //20;
+        this.playersTimeToGuess = 30; //20;
         this.choosableAnswersNumber = 6;
         this.playerWhoHaveToGuessCategoryIndex = 0;
         this.playerWhoHaveToGuessCategory = {};
@@ -40,6 +51,7 @@ class Room {
         this.guessedAnswers = [];
 
         // Results
+        this.scoresAreDistributed = false;
         this.showResultsAfterEverybodyGuessed = false;
 
         // Scoreboard
@@ -57,6 +69,12 @@ class Room {
         this.guessedLieScore = 500;
         this.guessedTruthScore = 1000;
 
+        this.canGoToNextQuestion = false;
+
+        this.showRound = false;
+
+        this.showFinalScoreboard = false;
+
         // Game progress
         this.nextRound();
     }
@@ -65,11 +83,17 @@ class Room {
         const room = Object.assign({}, this);
         room.countdownLieInterval = 'default shit';
         room.countdownGuessInterval = 'default shit';
+        room.global = {};
         return room;
-    }   
+    }
 
     // Clear round details
     nextRound() {
+        this.round++;
+        this.showRound = true;
+
+        console.log('Round', this.round, 'started');
+
         // Category selecting part
         this.categories = [];
         this.playerWhoHaveToGuessCategory = {};
@@ -84,18 +108,52 @@ class Room {
         this.waitingForPlayerGuess = false;
 
         // Set answers to guessed by players
-        this.guessedAnswers = [];   
+        this.guessedAnswers = [];
+
         // Show results after everybody guessed their answers
         this.showResultsAfterEverybodyGuessed = false;
 
+        this.canGoToNextQuestion = false;
+
+        this.scoresAreDistributed = false;
+
         // If this is not the first round, remove answers
-        this.players = this.players.map((player) => ({
-            ...player,
-            lie: '',
-            lied: false,
-            guess: '',
-            guessed: false
-        }));
+        // Fill up the previous score with the current score
+        this.players.forEach((player, playerIndex) => {
+            console.log(player.playerName + 's last score is ', player.score);
+            this.players[playerIndex].lie = '';
+            this.players[playerIndex].lied = false;
+            this.players[playerIndex].guess = '';
+            this.players[playerIndex].guessed = false;
+            this.players[playerIndex].previousScore = player.score;
+        });
+
+        // After rounds increase scores
+        if (this.round > 3) {
+            this.guessedLieScore = 1000;
+            this.guessedTruthScore = 2000;
+        }
+
+        if (this.round > 6) {
+            this.guessedLieScore = 2000;
+            this.guessedTruthScore = 4000;
+        }
+
+        if (this.round > 9) {
+            this.guessedLieScore = 5000;
+            this.guessedTruthScore = 5000;
+            this.showFinalScoreboard = true;
+        }
+
+        return this;
+    }
+
+    rejoinPlayer(oldPlayerId, newPlayerId) {
+        const playerIndex = this.players.findIndex(player => player.id === oldPlayerId);
+
+        if (playerIndex !== -1) {
+            this.players[playerIndex].id = newPlayerId;
+        }
     }
 
     // Start room
@@ -108,10 +166,13 @@ class Room {
         // Check if this player already is in the room
         if (this.playerIsJoined(player.id)) return false;
 
-        // Push player to array
+        const colorIndex = Math.floor(Math.random() * this.colors.length);
+        player.color = this.colors[colorIndex];
+        this.colors.splice(colorIndex, 1);
+
         this.players.push(player);
 
-        return this;
+        return player;
     }
 
     // Check player is joined
@@ -155,6 +216,7 @@ class Room {
     openSelectCategory(categories) {
         this.waitingForGuessCategory = true;
         this.categories = categories;
+        this.showRound = false;
 
         // Increase player index after every round
         this.playerWhoHaveToGuessCategoryIndex =
@@ -204,6 +266,8 @@ class Room {
         // If everybody lied in time, set room status
         if (this.checkEverybodyLied()) {
             console.log('Everybody lied in time, good job.');
+            console.log('----------------------------------');
+
             this.waitingForPlayerLying = false;
             this.waitingForPlayerGuess = true;
 
@@ -238,7 +302,7 @@ class Room {
         const correctAnswer = this.fact.correct;
         const recommendedAnswers = this.fact.recommended;
 
-        console.log('Use fact answers', this.fact, recommendedAnswers);
+        console.log('Get answers to guess...');
 
         // Answers must include
         let answersToGuess = [correctAnswer, ...playerLies];
@@ -266,15 +330,13 @@ class Room {
 
     // On player guess answer
     setGuessPlayerAnswer(player, guess) {
+
         const playerIndex = this.players
             .map((player) => player.id)
             .indexOf(player.id);
 
-        player = {
-            ...player,
-            guess: guess,
-            guessed: true
-        };
+        player.guess = guess;
+        player.guessed = true;
 
         // Set player guess
         this.players[playerIndex] = player;
@@ -289,6 +351,10 @@ class Room {
             clearInterval(this.countdownGuessInterval);
             this.countdownGuessTime = 0;
             this.countdownGuessInterval = null;
+
+            // Distribute scores   
+            this.distributeScores();
+
         }
 
         // Return the current player
@@ -300,11 +366,50 @@ class Room {
         return this.players.every((player) => player.guessed);
     }
 
+    // Distribute scores if has not yet
+    // Call when last player choosed answer or when the time is up
+    distributeScores() {
+        if (this.scoresAreDistributed) {
+            console.log('Scores already distributed');
+            return;
+        }
+
+        this.scoresAreDistributed = true;
+
+        // Each on all players
+        this.players.forEach((player, playerIndex) => {
+
+            const playerGuessedAnswer = player.guess;
+
+            // Player choosed correct answer
+            if (this.fact.correct === playerGuessedAnswer) {
+                console.log(player.playerName, 'found the truth, +', this.guessedTruthScore, 'score');
+
+                this.players[playerIndex].addScore(this.guessedTruthScore);
+                return;
+            }
+
+            // Choosed the other player lie
+            const otherPlayerWhoLied = this.players.find((otherPlayer) => otherPlayer.lie === playerGuessedAnswer);
+
+            if (otherPlayerWhoLied) {
+                console.log(player.playerName, 'guessed', otherPlayerWhoLied.playerName, '\'s lie. ', otherPlayerWhoLied.playerName, 'get', this.guessedLieScore, 'score');
+
+                otherPlayerWhoLied.addScore(this.guessedLieScore);
+                return;
+            }
+
+            console.log(player.playerName, 'has selected a lie by computer')
+        });
+    }
+
     // Time is up to guess answers
     timeIsUpGuessAnswer() {
         this.waitingForPlayerGuess = false;
         this.waitingForPlayerLying = false;
         this.showResultsAfterEverybodyGuessed = true;
+
+        this.distributeScores();
     }
 
     // ----

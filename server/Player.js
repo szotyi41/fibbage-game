@@ -14,7 +14,10 @@ class Player {
         this.lied = false;
 
         this.score = 0;
-        this.previous_score = 0;
+        this.previousScore = 0;
+
+        this.color = '';
+
     }
 
     response() {
@@ -66,6 +69,10 @@ class Player {
                 room.removePlayer(this);
             }
         }
+    }
+
+    addScore(score) {
+        this.score += score;
     }
 
     static isPlayerAlreadyExists(playerName, listOfAllPlayers) {

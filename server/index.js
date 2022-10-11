@@ -23,6 +23,9 @@ import GetFactToServer from './actions/GetFactToServer.js';
 import RejoinRoomToServer from './actions/RejoinRoomToServer.js';
 import RejoinPlayerToServer from './actions/RejoinPlayerToServer.js';
 import SetProfileImageToServer from './actions/SetProfileImageToServer.js';
+import GetRoomToServer from './actions/GetRoomToServer.js';
+import ShowCanGoToNextRoundButtonToServer from './actions/ShowCanGoToNextRoundButtonToServer.js';
+import StartNextRoundToServer from './actions/StartNextRoundToServer.js';
 
 global.CategoriesLogic = new Categories();
 global.Players = {};
@@ -43,7 +46,26 @@ server.listen(3001, () => console.log('Listening at ', 3001));
 
 const io = new Server(server, { cors: { credentials: true }});
 
+app.get('/', (req, res) => res.send('Working Fibbage server'));
+
+const onSocketConnected = (socket) => {
+
+    if (global.Players[socket.id]) {
+        console.log('✅ Connected player:', global.Players[socket.id]);
+        return;
+    }
+
+    if (socket?.room?.id) {
+        console.log('✅ Connected room:', socket.room.id);
+        return;
+    }
+
+    console.log('✅ Connected not in game yet:', socket.id);
+}
+
 io.sockets.on('connection', function (socket) {
+
+    onSocketConnected(socket);
 
     // This callback runs when a new Socket.IO connection is established.
     // eslint-disable-next-line no-undef
@@ -57,6 +79,9 @@ io.sockets.on('connection', function (socket) {
 
     // Remove socket from connection, if there is a playerName
     socket.on('disconnect', async (data, callback) => await PlayerDisconnected(socket, io, data, callback, global));
+
+    // FOR TESTING !!!
+    socket.on('get_room_to_server', async (data, callback) => await GetRoomToServer(socket, io, data, callback, global));
 
     // Join to room section
     // ------------------------------------------------------------------------
@@ -109,6 +134,14 @@ io.sockets.on('connection', function (socket) {
     // On player guess answer (from player)
     socket.on('send_guessed_answer_to_server', async (data, callback) => await SendGuessedAnswerToServer(socket, io, data, callback, global));
 
+    // Next round 
+    // ------------------------------------------------------------------------
+
+    // After show scores send the other users can go to next question
+    socket.on('show_can_go_to_next_round_button_to_server', async (data, callback) => await ShowCanGoToNextRoundButtonToServer(socket, io, data, callback, global));
+
+    // Start next round is the same as get categories
+    socket.on('start_next_round_to_server', async (data, callback) => await StartNextRoundToServer(socket, io, data, callback, global));
 });
 
 // eslint-disable-next-line no-extend-native

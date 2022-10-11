@@ -1,0 +1,69 @@
+html,
+body {
+  font-family: "Montserrat", sans-serif;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  font-family: "Montserrat", sans-serif;
+  color: #fff;
+}
+
+body {
+  position: relative;
+  background-image: url("/assets/background.webp");
+  background-size: auto;
+  background-position: center top;
+  background-repeat: no-repeat;
+  height: 100%;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+@media screen and (max-width: 1200px) {
+  body {
+    background-size: auto;
+    background-position: center top;
+    background-repeat: no-repeat;
+  }
+}
+
+.vignette {
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: inset 0 0 5em 1em #000;
+          box-shadow: inset 0 0 5em 1em #000;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.underline {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.red {
+  color: #a45e5c !important;
+}
+
+.green {
+  color: #6d9e70 !important;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  -webkit-transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+/*# sourceMappingURL=variables.css.map */

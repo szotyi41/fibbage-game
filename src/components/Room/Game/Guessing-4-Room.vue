@@ -2,8 +2,10 @@
 	<div class="guessing-component">
 		<Countdown :value="countdown" :maxCount="room.playersTimeToGuess"></Countdown>
 
-		<div class="answer" v-for="(answer, answerIndex) in answers" :key="answerIndex">
-			{{ answer }}
+		<div class="answers">
+			<div class="answer" v-for="(answer, answerIndex) in answers" :key="answerIndex">
+				{{ answer }}
+			</div>
 		</div>
 	</div>
 </template>
@@ -84,3 +86,21 @@ export default {
 	}
 };
 </script>
+
+<style lang="scss" scoped>
+.answers {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	.answer {
+		background-color: #000;
+		color: #fff;
+		text-transform: uppercase;
+		font-weight: 900;
+		padding: 24px 32px;
+		margin: 8px 8px;
+		font-size: 24px;
+		border-radius: 8px;
+	}
+}
+</style>

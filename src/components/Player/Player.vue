@@ -1,11 +1,11 @@
 <template>
 	<div class="player-component">
 
-		<div class="flex" v-if="!room.started">
+		<div class="flex w-100" v-if="!room?.started">
 			<WaitingForPlayersPlayer></WaitingForPlayersPlayer>
 		</div>
 
-		<div class="flex" v-if="room.started">
+		<div class="flex w-100" v-if="room?.started">
 			<GamePlayer></GamePlayer>
 		</div>
 	</div>
@@ -24,53 +24,67 @@ export default {
 	},
 	sockets: {
 		connect() {
-			console.log('Connected');
-			this.tryToRejoinRoom();
+			//this.tryToRejoinRoom();
 		},
 		disconnect() {
-			console.log('Disconnected');
-			this.clearRoom();
+			this.$toast.error('🔴 Socket disconnected');
 		}
 	},
 	computed: {
-		...mapState('game', ['room'])
+		...mapState('game', ['room', 'player'])
 	},
 	mounted() {
+		// Dangerous !!!
 		this.clearRoom();
+
+		this.waitingForNextRound();
 	},
 	methods: {
 		clearRoom() {
 			this.$store.commit('game/clearRoom');
 		},
+		waitingForNextRound() {
+			this.sockets.subscribe('start_next_round_to_client', ({ success, room }) => {
+				if (!success) {
+					return;
+				}
+
+				this.$store.commit('game/setRoom', room);
+			});
+		},
+
 		tryToRejoinRoom() {
 			// If last room not found, do not try to rejoin
-			if (!this.$store.state.game.playerForRejoin?.id) {
-				console.log('Rejoin not needed');
+			// this.$toast.info(this.player.playerName);
+
+			if (!this.player.id) {
+				this.$toast.info('Rejoin not needed');
 				return;
 			}
 
-			console.log('Try to rejoin', this.$store.state.game.playerForRejoin?.id);
+			this.$toast.info('Try to rejoin room: ' + this.player.id);
 
-			this.$store.commit('game/setRoom', {});
-			this.$store.commit('game/setPlayer', {});
-			this.$store.commit('game/setPlayers', []);
-
-			this.$socket.emit(
-				'rejoin_player_to_server',
-				{ lastKnownPlayer: this.$store.state.game.playerForRejoin },
-				({ success, message, room, player, players }) => {
-					if (!success) {
-						alert(message);
-						return;
-					}
-
-					console.log('Get from server', room, player, players);
-
-					this.$store.commit('game/setRoom', room);
-					this.$store.commit('game/setPlayer', player);
-					this.$store.commit('game/setPlayers', players);
+			this.$socket.emit('rejoin_player_to_server', { playerId: this.player.id }, ({ success, message, room, player, players }) => {
+				if (!success) {
+					this.$store.commit('game/setRoom', {});
+					this.$store.commit('game/setPlayer', {});
+					this.$store.commit('game/setPlayers', []);
+					this.$toast.error(message);
+					return;
 				}
-			);
+
+				console.log('Get from server', room, player, players);
+
+				this.$store.commit('game/setRoom', room);
+				this.$store.commit('game/setPlayer', player);
+				this.$store.commit('game/setPlayers', players);
+				this.$store.commit('game/setCategories', room.categories);
+				this.$store.commit('game/setCategory', room.category);
+				this.$store.commit('game/setFact', room.fact);
+				this.$store.commit('game/setAnswers', room.answers);
+
+				this.$toast.success('✅ Successfully rejoined to room');
+			});
 		}
 	}
 };

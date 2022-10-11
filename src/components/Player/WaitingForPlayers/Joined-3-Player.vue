@@ -1,6 +1,10 @@
 <template>
 	<div class="joined-player-component">
-		<div class="player-name">Szia, {{ player.playerName }}!</div>
+		<h1 class="player-name w-100" @click="$store.dispatch('game/getRoom', $socket)">
+			Szia, <span class="underline">{{ player.playerName }}</span>!
+		</h1>
+
+		<!-- {{ room?.started }} -->
 		<div class="error-message">{{ errorMessage }}</div>
 	</div>
 </template>
@@ -18,3 +22,4 @@ export default {
 	}
 };
 </script>
+

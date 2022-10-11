@@ -3,22 +3,31 @@
 
 		<Countdown :value="countdown" :maxCount="room.playersTimeToGuess"></Countdown>
 
-		<button v-for="(answer, answerIndex) in answers"
-			class="answer answer-player"
-			:class="{'your-answer': player.lie === answer}"
-			:key="answerIndex"
-			:disabled="player.lie === answer"
-			@click="guessGuessable(answer)">
-			{{ answer }}
-		</button>
+		<h1 v-if="isShowDoNotSelectYourAnswer">Ne válaszd a saját válaszod</h1>
+
+		<div class="answers">
+			<button v-for="(answer, answerIndex) in answers"
+				class="answer answer-player"
+				:class="{'your-answer': player.lie === answer}"
+				:key="answerIndex"
+				:disabled="player.lie === answer"
+				@mouseup="sendGuessable(answer)">
+				{{ answer }}
+			</button>
+		</div>
 	</div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+import Countdown from '../../Countdown.vue';
+
 export default {
+	components: {
+		Countdown
+	},
 	data() {
-		return { countdown: -1 };
+		return { countdown: -1, isShowDoNotSelectYourAnswer: false };
 	},
 	computed: {
 		...mapState('game', ['player', 'players', 'room', 'answers'])
@@ -31,6 +40,7 @@ export default {
 		this.waitingForTimeoutIfSomePlayerNotGuessed();
 	},
 	methods: {
+		// Other users
 		waitingForChoosableAnswers() {
 			this.sockets.subscribe('send_choosable_answers_to_client', ({ success, message, room, answers }) => {
 				// Failed to get fact
@@ -69,9 +79,9 @@ export default {
 		},
 
 		// On guess an answer
-		guessGuessable(answer) {
+		sendGuessable(answer) {
 			if (this.player.lie === answer) {
-				alert('Ne válaszd a saját válaszod');
+				this.isShowDoNotSelectYourAnswer = true;
 				return;
 			}
 
@@ -101,3 +111,33 @@ export default {
 	}
 };
 </script>
+
+<style lang="scss" scoped>
+.answers {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+
+	.answer {
+		background-color: #000;
+		color: #fff;
+		text-transform: uppercase;
+		font-weight: 900;
+		padding: 12px 24px;
+		margin: 4px 4px;
+		font-size: 16px;
+		border-radius: 8px;
+		border: none;
+		transition: all 0.3s;
+
+		&.your-answer {
+			opacity: 0.5;
+		}
+
+		&:hover {
+			cursor: pointer;
+			transform: scale(0.95);
+		}
+	}
+}
+</style>

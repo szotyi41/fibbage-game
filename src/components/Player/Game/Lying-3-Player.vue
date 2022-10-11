@@ -12,7 +12,7 @@
 
 		<!-- Send your answer -->
 		<button class="button button-prm"
-			:disabled="!lie.length || isSendingLie"
+			:disabled="!lie.length || isSendingLie || room.fact.correct === lie"
 			@click="sendLie()">
 			Hazudok
 		</button>
@@ -40,6 +40,8 @@ export default {
 	},
 	mounted() {
 		this.waitingForCountdown();
+
+		this.waitingForOtherPlayersLying();
 	},
 	methods: {
 		sendLie() {
@@ -62,6 +64,18 @@ export default {
 				this.$store.commit('game/setRoom', room);
 				this.$store.commit('game/setPlayers', players);
 				this.$store.commit('game/setPlayer', player);
+			});
+		},
+		waitingForOtherPlayersLying() {
+			this.sockets.subscribe('on_player_sent_lie_to_client', ({ success, room, players }) => {
+				// Failed to get fact
+				if (!success) {
+					console.log('Failed to get the answer from player');
+					return;
+				}
+
+				this.$store.commit('game/setRoom', room);
+				this.$store.commit('game/setPlayers', players);
 			});
 		},
 		waitingForCountdown() {

@@ -1,5 +1,5 @@
 import Fact from '../Fact.js';
-
+import mongoose from 'mongoose';
 
 export default async function GetFactToServer(socket, io, data, callback, global) {
 
@@ -19,7 +19,15 @@ export default async function GetFactToServer(socket, io, data, callback, global
     // Find the fact in category
     console.log('Find fact for category', category);
 
-    const fact = await Fact.findOne({ category: category }).exec();
+    const factsInCategory = (await Fact.find({ category: category }).exec()).length;
+
+    console.log('facts in same category', factsInCategory);
+    const random = Math.floor(Math.random() * factsInCategory);
+    const fact = await Fact.findOne({ category: category }).skip(random).exec();
+
+    // Update with uses
+    await Fact.findOneAndUpdate({ _id: fact._id }, {$inc: {use_times: 1}});
+
     room.setFact(fact);
 
     console.log('Fact queried successfully', fact.fact);
@@ -70,10 +78,15 @@ export default async function GetFactToServer(socket, io, data, callback, global
 
     // Countdown. Every second send time to all users.
     room.countdownLieTime = room.playersTimeToLie;
+
+    
     room.countdownLieInterval = setInterval(() => {
 
         room.countdownLieTime -= 1;
-        console.log('Lie time is ', room.countdownLieTime);
+
+        if (room.countdownLieTime % 10 === 0) {
+            console.log('Lie time is ', room.countdownLieTime);
+        }
 
         // On timeout choosing
         if (room.countdownLieTime <= 0) {

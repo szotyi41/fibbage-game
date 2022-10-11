@@ -1,9 +1,11 @@
 <template>
-	<div class="joined-players-list-component">
+	<div></div>
+
+	<!-- <div class="joined-players-list-component">
 		<div class="players-joined">
 			<h2 class="players-joined-label">Az alábbi léhűtőkhöz kerültél</h2>
 
-			<div class="player-joined" v-for="(player, playerIndex) in room?.players" :key="playerIndex">
+			<div class="player-joined" :style="{backgroundColor: player.color}" v-for="(player, playerIndex) in room?.players" :key="playerIndex">
 
 				<div class="player-name">
 					<span>{{ player.playerName }} </span>
@@ -13,7 +15,7 @@
 
 			</div>
 		</div>
-	</div>
+	</div> -->
 </template>
 
 
@@ -26,6 +28,7 @@ export default {
 	mounted() {
 		this.waitingForPlayersToJoin();
 		this.waitingWhosReady();
+		this.waitingGameIsStarted();
 	},
 	methods: {
 		waitingForPlayersToJoin() {
@@ -56,6 +59,21 @@ export default {
 
 				// Player is ready
 				console.log('Player', player.playerName, 'is ready in', room.id);
+				this.$store.commit('game/setRoom', room);
+				this.$store.commit('game/setPlayers', room.players);
+			});
+		},
+		waitingGameIsStarted() {
+			// Waiting for start the game by player
+			this.sockets.subscribe('game_started_to_client', ({ success, message, room, player }) => {
+				// Failed to start the game
+				if (!success) {
+					console.log('Start the game', message);
+					return;
+				}
+
+				// Player is started the game
+				console.log('Player', player.playerName, 'is started the game', room.id);
 				this.$store.commit('game/setRoom', room);
 				this.$store.commit('game/setPlayers', room.players);
 			});
@@ -103,28 +121,13 @@ export default {
 			align-items: center;
 			/* transform: rotate(4deg); */
 			color: #333;
-			background-color: $color-blue-light;
+			border: none;
+			/* background-color: $color-blue-light; */
 			padding: 24px 32px;
 			font-family: 'Montserrat', sans-serif;
 			font-weight: bold;
-			/* border-radius: 12px; */
+			border-radius: 12px;
 			/* box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; */
-
-			&:nth-child(2n) {
-				transform: rotate(-3deg);
-			}
-			&:nth-child(3n) {
-				transform: rotate(2deg);
-			}
-			&:nth-child(4n) {
-				transform: rotate(-2deg);
-			}
-			&:nth-child(5n) {
-				transform: rotate(-3deg);
-			}
-			&:nth-child(6n) {
-				transform: rotate(2deg);
-			}
 
 			.player-profile {
 				overflow: hidden;
@@ -166,10 +169,6 @@ export default {
 				.fa-check {
 					color: $color-green-light;
 				}
-			}
-
-			&:last-child {
-				border-bottom: 3px solid #000;
 			}
 		}
 	}

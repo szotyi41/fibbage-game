@@ -1,5 +1,5 @@
 <template>
-	<div class="waiting-for-players-component">
+	<div class="waiting-for-players-component w-100">
 
 		<div class="room-code-section">
 
@@ -11,8 +11,8 @@
 
 			<h1>Szobakulcs a csatlakozáshoz</h1>
 
-			<div class="room-code">
-				<div class="room-code-animation animate__animated animate__pulse animate__infinite animate__delay-2s">
+			<div class="room-code animate__animated animate__pulse animate__infinite animate__delay-2s">
+				<div class="room-code-animation">
 					<span v-if="room?.roomCode">{{ room.roomCode }}</span>
 					<i v-else class="loading-spinner"></i>
 				</div>
@@ -24,6 +24,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import 'animate.css';
 
 export default {
 	computed: {
@@ -69,7 +70,6 @@ export default {
 		createRoom() {
 			console.log('Create new room...');
 			this.$socket.emit('create_game_room_to_server', {}, ({ success, room, message }) => {
-				console.log('response');
 				if (!success) {
 					console.log('Failed to create room', message);
 					return;
@@ -118,6 +118,8 @@ export default {
 		justify-content: center;
 		width: 100%;
 		margin: auto;
+
+		transform: rotate(4deg) scale(1.4);
 
 		img {
 			height: 100%;

@@ -52,6 +52,22 @@ const game = {
 			state.fact = {};
 			state.answers = [];
 		}
+	},
+	actions: {
+		getRoom({ commit }, socket) {
+			console.log('Query room');
+			return socket.emit('get_room_to_server', {  }, (success, room) => {
+				commit('setRoom', room);
+
+				if (room?.players && Array.isArray(room?.players) && room?.players?.length) {
+					commit('setPlayers', room.players);
+				}
+
+				if (room?.categories && Array.isArray(room?.categories) && room?.categories.length) {
+					commit('setCategories', room.categories);
+				}
+			});
+		}
 	}
 }
 

@@ -6,7 +6,7 @@ export default function PlayerJoinToRoomToServer(socket, io, data, callback, glo
         (room) => room.roomCode === roomCode
     );
 
-    const player = global.Players[socket.id];
+    let player = global.Players[socket.id];
 
     // If player not found
     if (!player) {
@@ -30,7 +30,7 @@ export default function PlayerJoinToRoomToServer(socket, io, data, callback, glo
         return;
     }
 
-    console.log(player.playerName, ' try to join room ', room?.id, '(Rooms: ', global.GameRooms.length, ')');
+    console.log(player.playerName, 'try to join room', room?.id);
 
     // Check player is banned
     if (player.isBannedFromRoom(room)) {
@@ -52,6 +52,9 @@ export default function PlayerJoinToRoomToServer(socket, io, data, callback, glo
         return;
     }
 
+    // Remove everybody ready because new player needs to be ready
+    room.everybodyReady = false;
+
     // Remove player from all other game rooms first
     player.removeFromAllRooms(global.GameRooms);
 
@@ -59,14 +62,12 @@ export default function PlayerJoinToRoomToServer(socket, io, data, callback, glo
     socket.room = room;
     socket.join(socket.room.id);
 
-    room.addPlayer(player);
+    player = room.addPlayer(player);
     player.setRoom(socket.room);
 
-    console.log(
-        socket.playerName,
-        ' joined game room ',
-        socket.room.id
-    );
+    global.Players[socket.id] = player;
+
+    console.log('✅', socket.playerName, 'joined game room', socket.room.id);
 
     callback({ 
       success: true, 

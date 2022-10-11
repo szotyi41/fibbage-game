@@ -32,7 +32,7 @@ export default {
 		...mapState('game', ['room', 'player'])
 	},
 	data() {
-		return { roomCode: '', isJoiningGameRoom: false, errorMessage: '' };
+		return { roomCode: 'code', isJoiningGameRoom: false, errorMessage: '' };
 	},
 	methods: {
 		joinToRoom(roomCode) {
@@ -59,6 +59,7 @@ export default {
 					this.errorMessage = '';
 					this.$store.commit('game/setRoom', room);
 					this.$store.commit('game/setPlayer', player);
+					this.$store.commit('game/setPlayers', room.players);
 				}
 			);
 		}

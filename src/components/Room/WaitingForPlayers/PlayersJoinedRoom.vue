@@ -3,30 +3,37 @@
 		<div class="players-joined">
 
 
-			<div class="players-will-show-here" v-if="!players?.length">
-				A csatlakozott játékosok itt fognak megjelenni.
+			<div class="players-will-show-here">
+				<span v-if="!players?.length">A csatlakozott játékosok itt fognak megjelenni.</span>
+				<span v-else>Csatlakozott játékosok:</span>
 			</div>
 
-			<div class="player-joined" v-for="(player, playerIndex) in players" :key="playerIndex">
+			<transition-group name="list">
+				<div class="player-joined" 
+					:style="{backgroundColor: player.color}" 
+					v-for="(player, playerIndex) in players" :key="playerIndex">
 
-				<!-- Profile -->
-				<!-- <div class="player-profile">
-					<img :src="player.profileImage" alt="" />
-				</div>  -->
+					<!-- Profile -->
+					<!-- <div class="player-profile">
+						<img :src="player.profileImage" alt="" />
+					</div>  -->
 
-				<!-- Player name -->
-				<div class="player-name">{{ player.playerName }}</div>
+					<!-- Player is ready -->
+					<div v-if="player.ready" class="player-is-ready">
+						<span>😎</span>
+					</div>
 
-				<!-- Player is ready -->
-				<div v-if="player.ready" class="player-is-ready">
-					<span>✅</span>
+					<!-- Player is not ready -->
+					<div v-if="!player.ready" class="player-is-ready">
+						<span>😡</span>
+					</div>
+
+					<!-- Player name -->
+					<div class="player-name">{{ player.playerName }}</div>
+
+
 				</div>
-
-				<!-- Player is not ready -->
-				<div v-if="!player.ready" class="player-is-not-ready">
-					<span>❎</span>
-				</div>
-			</div>
+			</transition-group>
 		</div>
 	</div>
 </template>
@@ -87,7 +94,7 @@ export default {
 	width: 30vw;
 	height: 100vh;
 
-	background-image: url('/assets/ripped-vertical.svg');
+	/* background-image: url('/assets/ripped-vertical.svg'); */
 	background-repeat: no-repeat;
 	background-size: cover;
 
@@ -95,27 +102,13 @@ export default {
 		display: flex;
 		flex-direction: column;
 		padding-top: 32px;
-
-		.player-joined:nth-child(2n) {
-			transform: rotate(-3deg);
-		}
-		.player-joined:nth-child(3n) {
-			transform: rotate(2deg);
-		}
-		.player-joined:nth-child(4n) {
-			transform: rotate(-2deg);
-		}
-		.player-joined:nth-child(5n) {
-			transform: rotate(-3deg);
-		}
-		.player-joined:nth-child(6n) {
-			transform: rotate(2deg);
-		}
+		margin-right: 32px;
 
 		.players-will-show-here {
-			font-size: 24px;
+			font-size: 26px;
+			margin-bottom: 32px;
 			transition: $transition-bounce;
-			color: #333;
+			color: #fff;
 			font-family: 'Montserrat', sans-serif;
 			text-align: center;
 			font-weight: bold;
@@ -124,22 +117,29 @@ export default {
 
 		.player-joined {
 			display: flex;
-			justify-content: space-between;
+			justify-content: center;
 			align-items: center;
 			/* transform: rotate(4deg); */
 			color: #333;
-			background-color: $color-blue-light;
-			padding: 24px 32px;
+			/* background-color: $color-blue-light; */
+			padding: 6px 12px;
 			font-family: 'Montserrat', sans-serif;
 			font-weight: bold;
+			/* border-top: 4px solid #333; */
+
+			border-radius: 12px;
+			margin-bottom: 12px;
+			text-transform: uppercase;
 			/* border-radius: 12px; */
 			/* box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; */
+			border: none;
 
 			.player-profile {
 				overflow: hidden;
 				width: 48px;
 				height: 48px;
 				font-family: 'Montserrat', sans-serif;
+				color: #000;
 
 				img {
 					border: none;
@@ -148,9 +148,10 @@ export default {
 			}
 
 			.player-name {
-				font-size: 28px;
+				font-size: 32px;
 				font-family: 'Montserrat', sans-serif;
 				font-weight: bold;
+				color: #fff;
 			}
 
 			.player-is-ready {
@@ -160,26 +161,24 @@ export default {
 				justify-content: space-between;
 
 				span {
-					margin-top: 12px;
+					font-size: 48px;
 				}
 
 				i {
-					font-size: 22px;
+					font-size: 48px;
 				}
-
-				.fa-times {
-					color: $color-red-light;
-				}
-
-				.fa-check {
-					color: $color-green-light;
-				}
-			}
-
-			&:last-child {
-				border-bottom: 3px solid #000;
 			}
 		}
 	}
+}
+
+.list-enter-active,
+.list-leave-active {
+	transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+	opacity: 0;
+	transform: translateX(30px);
 }
 </style>

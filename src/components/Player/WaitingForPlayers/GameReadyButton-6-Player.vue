@@ -14,7 +14,8 @@
 				</button>
 
 				<button v-if="player.ready"
-					class="button button-prm start-game"
+					class="button button-sec start-game"
+					style="margin-bottom: 8px"
 					@click="sendPlayerIsReady(false)"
 					:disabled="isSendingPlayerIsReady">
 					<span>Várjunk még egy kicsit</span>
@@ -52,7 +53,7 @@ export default {
 		...mapState('game', ['player', 'players', 'room']),
 
 		notReadyPlayers() {
-			return this.players.filter((player) => !player.ready);
+			return this.players.filter((player) => player.ready !== true);
 		}
 	},
 	data() {
@@ -87,6 +88,7 @@ export default {
 					this.errorMessage = '';
 					this.$store.commit('game/setRoom', room);
 					this.$store.commit('game/setPlayer', player);
+					this.$store.commit('game/setPlayers', room.players);
 				}
 			);
 		},
@@ -109,8 +111,16 @@ export default {
 				this.errorMessage = '';
 				this.$store.commit('game/setRoom', room);
 				this.$store.commit('game/setPlayer', player);
+				this.$store.commit('game/setPlayers', room.players);
 			});
 		}
 	}
 };
 </script>
+
+<style lang="scss" scoped>
+.everybody-in-section {
+	color: #fff;
+	margin-top: 8px;
+}
+</style>
