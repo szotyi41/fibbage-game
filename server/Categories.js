@@ -26,8 +26,8 @@ class Categories {
 
         do {
             // Get fact, and category
-            random = Math.floor(Math.random() * this.factsCount);
-            fact = await Fact.findOne().skip(random).exec();
+            random = Math.floor(Math.random() * (this.factsCount / 2));
+            fact = await Fact.findOne().sort({ use_times: 1 }).skip(random).exec();
             category = fact.category;
 
             // When category not added yet, push it

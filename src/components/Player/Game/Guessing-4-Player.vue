@@ -33,6 +33,8 @@ export default {
 		...mapState('game', ['player', 'players', 'room', 'answers'])
 	},
 	mounted() {
+		this.waitingForCountdown();
+
 		this.waitingForChoosableAnswers();
 
 		this.waitingForGuessedAnswerByAnotherPlayer();
@@ -78,6 +80,13 @@ export default {
 			});
 		},
 
+		waitingForCountdown() {
+			this.sockets.subscribe('send_countdown_time_to_client', ({ time, room }) => {
+				this.countdown = time;
+				this.$store.commit('game/setRoom', room);
+			});
+		},
+
 		// On guess an answer
 		sendGuessable(answer) {
 			if (this.player.lie === answer) {
@@ -99,13 +108,6 @@ export default {
 				this.$store.commit('game/setRoom', room);
 				this.$store.commit('game/setPlayers', players);
 				this.$store.commit('game/setPlayer', player);
-			});
-		},
-		waitingForCountdown() {
-			window.socket.on('send_countdown_time_to_client', ({ time, room }) => {
-				this.countdown = time;
-
-				this.$store.commit('game/setRoom', room);
 			});
 		}
 	}
