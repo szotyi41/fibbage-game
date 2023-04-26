@@ -32,7 +32,13 @@ export default {
 		...mapState('game', ['room', 'player'])
 	},
 	data() {
-		return { roomCode: 'code', isJoiningGameRoom: false, errorMessage: '' };
+		return { roomCode: '', isJoiningGameRoom: false, errorMessage: '' };
+	},
+	mounted() {
+		console.log('route', this.$route);
+		if (this.$route.query.roomCode) {
+			this.roomCode = this.$route.query.roomCode;
+		}
 	},
 	methods: {
 		joinToRoom(roomCode) {

@@ -1,7 +1,7 @@
 <template>
 	<div class="display-fact-component">
 
-		<h1 class="fact-text" v-if="fact?.fact">{{ fact.fact }}</h1>
+		<h1 class="fact-text" v-if="fact?.fact" v-html="fact.fact"></h1>
 
 		<div v-if="!room.showResultsAfterEverybodyGuessed">
 

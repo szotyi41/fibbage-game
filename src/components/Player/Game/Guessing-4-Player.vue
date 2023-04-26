@@ -6,7 +6,7 @@
 		<h1 v-if="isShowDoNotSelectYourAnswer">Ne válaszd a saját válaszod</h1>
 
 		<div class="answers">
-			<button v-for="(answer, answerIndex) in answers"
+			<button v-for="(answer, answerIndex) in answersRandom"
 				class="answer answer-player"
 				:class="{'your-answer': player.lie === answer}"
 				:key="answerIndex"
@@ -30,7 +30,28 @@ export default {
 		return { countdown: -1, isShowDoNotSelectYourAnswer: false };
 	},
 	computed: {
-		...mapState('game', ['player', 'players', 'room', 'answers'])
+		...mapState('game', ['player', 'players', 'room', 'answers']),
+
+		answersRandom() {
+			function shuffle(array) {
+				let currentIndex = array.length,
+					randomIndex;
+
+				// While there remain elements to shuffle.
+				while (currentIndex != 0) {
+					// Pick a remaining element.
+					randomIndex = Math.floor(Math.random() * currentIndex);
+					currentIndex--;
+
+					// And swap it with the current element.
+					[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+				}
+
+				return array;
+			}
+
+			return shuffle(this.answers);
+		}
 	},
 	mounted() {
 		this.waitingForCountdown();

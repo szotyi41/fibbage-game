@@ -5,7 +5,8 @@
 		<transition name="show-fact">
 			<h1 class="fact-text" 
 				:class="{'waiting-for-lying': room.waitingForPlayerLying}" 
-				v-if="fact.fact">{{ fact.fact }}</h1>
+				v-if="fact.fact"
+				v-html="fact.fact"></h1>
 		</transition>
 
 

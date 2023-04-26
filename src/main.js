@@ -14,7 +14,9 @@ import './assets/fonts/Montserrat/stylesheet.css';
 import './style/variables.scss';
 import './style/default.scss';
 
-const client = socketIOClient('ws://192.168.1.3:3001', {
+const ws = 'ws://' + window.location.hostname + ':3001';
+
+const client = socketIOClient(ws, {
     transports: ['websocket', 'polling', 'flashsocket']
 });
 

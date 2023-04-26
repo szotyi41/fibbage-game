@@ -11,10 +11,14 @@
 
 			<h1>Szobakulcs a csatlakozáshoz</h1>
 
-			<div class="room-code animate__animated animate__pulse animate__infinite animate__delay-2s">
+			<div class="room-code animate__animated animate__pulse animate__infinite animate__delay-2s"
+				@click="isQrCodeOpened =! isQrCodeOpened">
 				<div class="room-code-animation">
-					<span v-if="room?.roomCode">{{ room.roomCode }}</span>
-					<i v-else class="loading-spinner"></i>
+					<span v-if="room?.roomCode && !isQrCodeOpened">{{ room.roomCode }}</span>
+					<qrcode-vue :value="playerPage" 
+						v-if="room?.roomCode && isQrCodeOpened" :size="300" level="H">
+					</qrcode-vue>
+					<i v-if="!room?.roomCode" class="loading-spinner"></i>
 				</div>
 			</div>
 		</div>
@@ -25,19 +29,26 @@
 <script>
 import { mapState } from 'vuex';
 import 'animate.css';
+import QrcodeVue from 'qrcode.vue';
 
 export default {
+	components: {
+		QrcodeVue
+	},
 	computed: {
 		...mapState('game', ['room'])
 	},
 	data() {
 		return {
-			playerPage: 'http://localhost:8080/player'
+			playerPage: 'http://localhost:8080/#/player',
+			isQrCodeOpened: false
 		};
 	},
 	mounted() {
 		this.waitingForStartGame();
 		this.createRoom();
+
+		this.playerPage = window.location.origin + '/#/player';
 	},
 	methods: {
 		waitingForStartGame() {
@@ -77,6 +88,8 @@ export default {
 
 				this.$store.commit('game/setRoom', room);
 				console.log('Room created successfully', room.id);
+
+				this.playerPage = window.location.origin + '/#/player?roomCode=' + room.roomCode;
 			});
 		}
 	}

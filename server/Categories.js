@@ -13,7 +13,7 @@ class Categories {
 
         console.log(
             this.factsCount,
-            ' fact(s) queried successfully, database connection is estabilished'
+            'fact(s) queried successfully, database connection is estabilished'
         );
     }
 
